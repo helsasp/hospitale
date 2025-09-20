@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Doctors List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: #f2f2f2;
+    }
+    a.button, button.delete-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      margin-right: 5px;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+    }
+    a.button {
+      background: #007bff;
+    }
+    a.button:hover {
+      background: #0056b3;
+    }
+    button.delete-btn {
+      background: #dc3545;
+    }
+    button.delete-btn:hover {
+      background: #a71d2a;
+    }
+    .add-btn {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 15px;
+      background: #28a745;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    .add-btn:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+<body>
+  <h1>Doctors List</h1>
+  
+  <table id="doctor-table">
+    <thead>
+      <tr>
+  
+        <th>Name</th>
+        <th>Specialization</th>
+        <th>Phone</th>
+        <th>Email</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Rows akan diisi dari fetch -->
+    </tbody>
+  </table>
+
+  <a href="doctor-create.html" class="add-btn">Add New Doctor</a>
+
+  <script>
+    // Fungsi untuk hapus dokter
+    function deleteDoctor(id, row) {
+      if (confirm("Are you sure you want to delete this doctor?")) {
+        fetch(`/doctors/${id}`, {
+          method: 'DELETE'
+        })
+        .then(response => {
+          if (response.ok) {
+            row.remove(); // hapus baris dari tabel
+            alert("Doctor deleted successfully!");
+          } else {
+            alert("Failed to delete doctor.");
+          }
+        })
+        .catch(err => console.error('Error deleting doctor:', err));
+      }
+    }
+
+    // Ambil data dokter
+    fetch('/doctors/json')
+      .then(response => response.json())
+      .then(doctors => {
+        const tbody = document.querySelector('#doctor-table tbody');
+        doctors.forEach(doc => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            
+            <td>${doc.name}</td>
+            <td>${doc.specialization}</td>
+            <td>${doc.phone}</td>
+            <td>${doc.email}</td>
+            <td>
+              <a class="button" href="doctor-edit.html?id=${doc.id}">Edit</a>
+              <button class="delete-btn">Delete</button>
+            </td>
+          `;
+          // Event listener tombol delete
+          tr.querySelector('.delete-btn').addEventListener('click', () => deleteDoctor(doc.id, tr));
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(err => console.error('Error fetching doctors:', err));
+  </script>
+</body>
+</html>
